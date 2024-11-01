@@ -31,6 +31,7 @@ Shader "SXSG/Shader_Fractal_Quad"
             // #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
+            #include "Shader_Utils.cginc"
             #include "Shader_Fractal.cginc"
             
             // 각 패스마다 수정할 것
@@ -68,6 +69,7 @@ Shader "SXSG/Shader_Fractal_Quad"
             // #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
+            #include "Shader_Utils.cginc"
             #include "Shader_Fractal.cginc"
 
             // 각 패스마다 수정할 것
@@ -109,6 +111,7 @@ Shader "SXSG/Shader_Fractal_Quad"
             // #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
+            #include "Shader_Utils.cginc"
             #include "Shader_Fractal.cginc"
 
             // 각 패스마다 수정할 것
@@ -146,6 +149,7 @@ Shader "SXSG/Shader_Fractal_Quad"
             // #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
+            #include "Shader_Utils.cginc"
             #include "Shader_Fractal.cginc"
 
             // 각 패스마다 수정할 것
