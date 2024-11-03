@@ -8,9 +8,9 @@ public class ReconstructionController : MonoBehaviour
     // [Header ("컴포넌트 세팅")]
     [SerializeField][HideInInspector] MeshRenderer m_meshRenderer;
     
-    [Header ("수치 세팅")]
-    [SerializeField] private float m_delay = 0.0f;
-    [SerializeField] private float m_duration = 1.0f;
+    // [Header ("수치 세팅")]
+    [SerializeField] [HideInInspector]private float m_delay = 0.0f;
+    [SerializeField] [HideInInspector] private float m_duration = 1.0f;
 
     [SerializeField] [HideInInspector] private Quaternion m_startRotation = Quaternion.identity;
     [SerializeField] [HideInInspector] private Vector3 m_startScale = Vector3.one;
@@ -42,6 +42,12 @@ public class ReconstructionController : MonoBehaviour
         m_orderRatio = _orderRatio;
     }
 
+    public void SetDurations (in float _delay, in float _duration)
+    {
+        m_delay = _delay;
+        m_duration = _duration;
+    }
+
     public void AddRandomSeed (in int _increase)
     {
         if (m_meshRenderer == null)
@@ -54,7 +60,7 @@ public class ReconstructionController : MonoBehaviour
 
     private float WrapingTimeRatio (in float _currentT)
     {
-        return Mathf.Sin((_currentT - 0.5f) * Mathf.PI) * 0.5f + 0.5f;
+        return m_reconstructionManager.WarpTimeRatio(_currentT);// Mathf.Sin((_currentT - 0.5f) * Mathf.PI) * 0.5f + 0.5f;
     }
 
     public void StartBraking ()
@@ -80,8 +86,8 @@ public class ReconstructionController : MonoBehaviour
             m_currentRatio += Time.deltaTime / m_duration;
             m_meshRenderer.material.SetFloat ("_RecontructionRate", WrapingTimeRatio(m_currentRatio));
 
-            m_reconstructionManager.GetControlRotationByRatio(WrapingTimeRatio(m_currentRatio), m_orderRatio, out controlRotation);
-            m_reconstructionManager.GetControlScaleByRatio(WrapingTimeRatio(m_currentRatio), m_startScale, out controlScale);
+            m_reconstructionManager.GetControlRotationByRatio(m_currentRatio, m_orderRatio, out controlRotation);
+            m_reconstructionManager.GetControlScaleByRatio(m_currentRatio, m_orderRatio, m_startScale, out controlScale);
 
             gameObject.transform.localRotation = m_startRotation * Quaternion.Euler(0.0f, 0.0f, controlRotation);
             gameObject.transform.localScale = controlScale;
@@ -92,8 +98,8 @@ public class ReconstructionController : MonoBehaviour
         m_currentRatio = 1.0f;
         m_meshRenderer.material.SetFloat ("_RecontructionRate", WrapingTimeRatio(m_currentRatio));
 
-        m_reconstructionManager.GetControlRotationByRatio(WrapingTimeRatio(m_currentRatio), m_orderRatio, out controlRotation);
-        m_reconstructionManager.GetControlScaleByRatio(WrapingTimeRatio(m_currentRatio), m_startScale, out controlScale);
+        m_reconstructionManager.GetControlRotationByRatio(m_currentRatio, m_orderRatio, out controlRotation);
+        m_reconstructionManager.GetControlScaleByRatio(m_currentRatio, m_orderRatio, m_startScale, out controlScale);
 
         gameObject.transform.localRotation = m_startRotation * Quaternion.Euler(0.0f, 0.0f, controlRotation);
         gameObject.transform.localScale = controlScale;
@@ -123,8 +129,8 @@ public class ReconstructionController : MonoBehaviour
             m_currentRatio -= Time.deltaTime / m_duration;
             m_meshRenderer.material.SetFloat ("_RecontructionRate", WrapingTimeRatio(m_currentRatio));
 
-            m_reconstructionManager.GetControlRotationByRatio(WrapingTimeRatio(m_currentRatio), m_orderRatio, out controlRotation);
-            m_reconstructionManager.GetControlScaleByRatio(WrapingTimeRatio(m_currentRatio), m_startScale, out controlScale);
+            m_reconstructionManager.GetControlRotationByRatio(m_currentRatio, m_orderRatio, out controlRotation);
+            m_reconstructionManager.GetControlScaleByRatio(m_currentRatio, m_orderRatio, m_startScale, out controlScale);
 
             gameObject.transform.localRotation = m_startRotation * Quaternion.Euler(0.0f, 0.0f, controlRotation);
             gameObject.transform.localScale = controlScale;
@@ -135,8 +141,8 @@ public class ReconstructionController : MonoBehaviour
         m_currentRatio = 0.0f;
         m_meshRenderer.material.SetFloat ("_RecontructionRate", WrapingTimeRatio(m_currentRatio));
 
-        m_reconstructionManager.GetControlRotationByRatio(WrapingTimeRatio(m_currentRatio), m_orderRatio, out controlRotation);
-        m_reconstructionManager.GetControlScaleByRatio(WrapingTimeRatio(m_currentRatio), m_startScale, out controlScale);
+        m_reconstructionManager.GetControlRotationByRatio(m_currentRatio, m_orderRatio, out controlRotation);
+        m_reconstructionManager.GetControlScaleByRatio(m_currentRatio, m_orderRatio, m_startScale, out controlScale);
 
         gameObject.transform.localRotation = m_startRotation * Quaternion.Euler(0.0f, 0.0f, controlRotation);
         gameObject.transform.localScale = controlScale;

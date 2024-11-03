@@ -1,10 +1,14 @@
-void inverseLocalPosition_X (inout appdata v)
+void inverseLocalPosition_X (inout appdata_full v)
 {
     v.vertex.x *= -1;
+    v.normal.x *= -1;
 }
 
-void calculateVert (inout appdata v, inout v2f o, in float startAngle, in float isInverse)
+void calculateVert (inout appdata_full v, inout v2f o, in float startAngle, in float isInverse)
 {
+    // 로컬 위치 Offset
+    // offsetLocalPosition (v, float4(0.0, 0.0, _OffsetLocalPos.z, 1.0));
+    
     // 로컬 회전 Offset
     rotateLocalRotaion_X (v, _OffsetLocalRot.x);
     rotateLocalRotaion_Y (v, _OffsetLocalRot.y);
@@ -31,8 +35,19 @@ void calculateVert (inout appdata v, inout v2f o, in float startAngle, in float 
     o.localPos = v.vertex;
     o.vertex = UnityObjectToClipPos(o.localPos);
     o.worldPos = mul (unity_ObjectToWorld, o.localPos);
-    o.uv = TRANSFORM_TEX(v.uv, _MainTex);
-    o.normal = v.normal;
+    o.uv = TRANSFORM_TEX(v.texcoord, _MainTex);
+    o.uv2 = TRANSFORM_TEX(v.texcoord2, _MainTex);
+
+
+    o.worldNormal = UnityObjectToWorldNormal(v.normal);
+    half3 wTangent = UnityObjectToWorldDir(v.tangent.xyz);
+    // compute bitangent from cross product of normal and tangent
+    half tangentSign = v.tangent.w * unity_WorldTransformParams.w;
+    half3 wBitangent = cross(o.worldNormal, wTangent) * tangentSign;
+    // output the tangent space matrix
+    o.tspace0 = half3(wTangent.x, wBitangent.x, o.worldNormal.x);
+    o.tspace1 = half3(wTangent.y, wBitangent.y, o.worldNormal.y);
+    o.tspace2 = half3(wTangent.z, wBitangent.z, o.worldNormal.z);
 }
 
 float isBetweenAngle (in v2f i, in float startAngle, in float gapAngle)
@@ -63,5 +78,18 @@ float isBetweenAngle (in v2f i, in float startAngle, in float gapAngle)
 fixed4 calculateColor (inout v2f i)
 {
     fixed4 col = tex2D(_MainTex, i.uv);
+
+    half3 tnormal = UnpackNormal(tex2D(_BumpMap, i.uv));
+    half3 worldNormal;
+    worldNormal.x = dot(i.tspace0, tnormal);
+    worldNormal.y = dot(i.tspace1, tnormal);
+    worldNormal.z = dot(i.tspace2, tnormal);
+
+    half nl = max (0, dot (worldNormal, _WorldSpaceLightPos0.xyz));
+    float4 diff = nl * _LightColor0;
+    diff.rgb += ShadeSH9(half4(worldNormal,1));
+
+    col *= diff;
+
     return col;
 }

@@ -3,6 +3,7 @@ Shader "SXSG/Shader_Fractal_Hexa"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
+        _BumpMap("Normal Map", 2D) = "bump" {}
 
         _OffsetLocalPos ("Offset Local Position", Vector) = (0, 0, 0, 1)
         _OffsetLocalRot ("Offset Local Rotation", Vector) = (0, 0, 0, 1)
@@ -14,6 +15,7 @@ Shader "SXSG/Shader_Fractal_Hexa"
         Tags 
         { 
             "RenderType"="Queue"
+            "LightMode" = "ForwardBase"
         }
 
         LOD 100
@@ -38,7 +40,7 @@ Shader "SXSG/Shader_Fractal_Hexa"
             #define startAngle 0.0
             #define gapAngle 30
  
-            v2f vert (appdata v)
+            v2f vert (appdata_full v)
             {
                 v2f o;
 
@@ -76,7 +78,7 @@ Shader "SXSG/Shader_Fractal_Hexa"
             #define startAngle 120
             #define gapAngle 30
  
-            v2f vert (appdata v)
+            v2f vert (appdata_full v)
             {
                 v2f o;
 
@@ -115,7 +117,7 @@ Shader "SXSG/Shader_Fractal_Hexa"
             #define startAngle 240
             #define gapAngle 30
  
-            v2f vert (appdata v)
+            v2f vert (appdata_full v)
             {
                 v2f o;
 
@@ -157,7 +159,7 @@ Shader "SXSG/Shader_Fractal_Hexa"
             #define startAngle 60
             #define gapAngle 30
  
-            v2f vert (appdata v)
+            v2f vert (appdata_full v)
             {
                 v2f o;
  
@@ -195,7 +197,7 @@ Shader "SXSG/Shader_Fractal_Hexa"
             #define startAngle 180
             #define gapAngle 30
  
-            v2f vert (appdata v)
+            v2f vert (appdata_full v)
             {
                 v2f o;
       
@@ -234,7 +236,7 @@ Shader "SXSG/Shader_Fractal_Hexa"
             #define startAngle 300
             #define gapAngle 30
  
-            v2f vert (appdata v)
+            v2f vert (appdata_full v)
             {
                 v2f o;
      

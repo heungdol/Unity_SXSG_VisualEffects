@@ -3,7 +3,8 @@ Shader "SXSG/Shader_Fractal_Octa"
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
-
+        _BumpMap("Normal Map", 2D) = "bump" {}
+        
         _OffsetLocalPos ("Offset Local Position", Vector) = (0, 0, 0, 1)
         _OffsetLocalRot ("Offset Local Rotation", Vector) = (0, 0, 0, 1)
         
@@ -15,6 +16,7 @@ Shader "SXSG/Shader_Fractal_Octa"
         Tags 
         { 
             "RenderType"="Queue"
+            "LightMode" = "ForwardBase"
         }
 
         LOD 100
@@ -39,7 +41,7 @@ Shader "SXSG/Shader_Fractal_Octa"
             #define startAngle 0.0
             #define gapAngle 22.5
  
-            v2f vert (appdata v)
+            v2f vert (appdata_full v)
             {
                 v2f o;
 
@@ -77,7 +79,7 @@ Shader "SXSG/Shader_Fractal_Octa"
             #define startAngle 90
             #define gapAngle 22.5
  
-            v2f vert (appdata v)
+            v2f vert (appdata_full v)
             {
                 v2f o;
      
@@ -116,7 +118,7 @@ Shader "SXSG/Shader_Fractal_Octa"
             #define startAngle 180
             #define gapAngle 22.5
  
-            v2f vert (appdata v)
+            v2f vert (appdata_full v)
             {
                 v2f o;
       
@@ -154,7 +156,7 @@ Shader "SXSG/Shader_Fractal_Octa"
             #define startAngle 270
             #define gapAngle 22.5
  
-            v2f vert (appdata v)
+            v2f vert (appdata_full v)
             {
                 v2f o;
      
@@ -196,7 +198,7 @@ Shader "SXSG/Shader_Fractal_Octa"
             #define startAngle 45
             #define gapAngle 22.5
  
-            v2f vert (appdata v)
+            v2f vert (appdata_full v)
             {
                 v2f o;
       
@@ -234,7 +236,7 @@ Shader "SXSG/Shader_Fractal_Octa"
             #define startAngle 135
             #define gapAngle 22.5
  
-            v2f vert (appdata v)
+            v2f vert (appdata_full v)
             {
                 v2f o;
      
@@ -273,7 +275,7 @@ Shader "SXSG/Shader_Fractal_Octa"
             #define startAngle 225
             #define gapAngle 22.5
  
-            v2f vert (appdata v)
+            v2f vert (appdata_full v)
             {
                 v2f o;
      
@@ -311,7 +313,7 @@ Shader "SXSG/Shader_Fractal_Octa"
             #define startAngle 315
             #define gapAngle 22.5
  
-            v2f vert (appdata v)
+            v2f vert (appdata_full v)
             {
                 v2f o;
       
