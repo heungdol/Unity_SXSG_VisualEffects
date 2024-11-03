@@ -190,6 +190,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Mesh_BendingBuilding (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 97cf1dc9f069dbb498fb296f5483e0af, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97cf1dc9f069dbb498fb296f5483e0af, type: 3}
 --- !u!4 &291592601 stripped
@@ -286,6 +290,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Mesh_BendingBuilding (0)
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 97cf1dc9f069dbb498fb296f5483e0af, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97cf1dc9f069dbb498fb296f5483e0af, type: 3}
 --- !u!4 &534143030 stripped
@@ -381,6 +389,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 97cf1dc9f069dbb498fb296f5483e0af, type: 3}
       propertyPath: m_Name
       value: Mesh_BendingBuilding (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 97cf1dc9f069dbb498fb296f5483e0af, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97cf1dc9f069dbb498fb296f5483e0af, type: 3}
@@ -708,6 +720,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Mesh_BendingBuilding (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 97cf1dc9f069dbb498fb296f5483e0af, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97cf1dc9f069dbb498fb296f5483e0af, type: 3}
 --- !u!4 &1469867272 stripped
@@ -803,6 +819,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 97cf1dc9f069dbb498fb296f5483e0af, type: 3}
       propertyPath: m_Name
       value: Mesh_BendingBuilding (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 97cf1dc9f069dbb498fb296f5483e0af, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 97cf1dc9f069dbb498fb296f5483e0af, type: 3}

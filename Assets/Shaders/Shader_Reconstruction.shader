@@ -38,8 +38,8 @@ Shader "Unlit/Shader_Reconstruction"
             #include "UnityCG.cginc"
             #include "Shader_Utils.cginc"
 
-            sampler2D _BaseMap;
-            float4 _BaseMap_ST;
+            // sampler2D _BaseMap;
+            // float4 _BaseMap_ST;
 
             sampler2D _IDMask;
             float4 _IDMask_ST;

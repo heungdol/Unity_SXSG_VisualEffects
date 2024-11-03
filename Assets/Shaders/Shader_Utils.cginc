@@ -22,13 +22,8 @@ struct v2f
     // float4 tangent : TANGENT;
 };
 
-float4 _OffsetLocalPos;
-float4 _OffsetLocalRot;
-
-float4 _RotationSpeed;
-
-sampler2D _MainTex;
-float4 _MainTex_ST;
+sampler2D _BaseMap;
+float4 _BaseMap_ST;
 
 sampler2D _BumpMap;
 float4 _BumpMap_ST;

@@ -1,3 +1,8 @@
+float4 _OffsetLocalPos;
+float4 _OffsetLocalRot;
+
+float4 _RotationSpeed;
+
 void inverseLocalPosition_X (inout appdata_full v)
 {
     v.vertex.x *= -1;
@@ -35,8 +40,8 @@ void calculateVert (inout appdata_full v, inout v2f o, in float startAngle, in f
     o.localPos = v.vertex;
     o.vertex = UnityObjectToClipPos(o.localPos);
     o.worldPos = mul (unity_ObjectToWorld, o.localPos);
-    o.uv = TRANSFORM_TEX(v.texcoord, _MainTex);
-    o.uv2 = TRANSFORM_TEX(v.texcoord2, _MainTex);
+    o.uv = TRANSFORM_TEX(v.texcoord, _BaseMap);
+    o.uv2 = TRANSFORM_TEX(v.texcoord2, _BaseMap);
 
 
     o.worldNormal = UnityObjectToWorldNormal(v.normal);
@@ -77,7 +82,7 @@ float isBetweenAngle (in v2f i, in float startAngle, in float gapAngle)
 
 fixed4 calculateColor (inout v2f i)
 {
-    fixed4 col = tex2D(_MainTex, i.uv);
+    fixed4 col = tex2D(_BaseMap, i.uv);
 
     half3 tnormal = UnpackNormal(tex2D(_BumpMap, i.uv));
     half3 worldNormal;

@@ -2,12 +2,13 @@ Shader "SXSG/Shader_BendingBuilding"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
+        _BaseMap ("Texture", 2D) = "white" {}
         _MainColor ("Main Color", Color) = (1, 1, 1, 1)
 
         _PivotX ("Pivot X (WorldPos)", Float) = 50
         _PivotY ("Pivot Y (WorldPos)", Float) = 100
 
+        // _InnerX ("Inner X (LocalPos)", Float) = 10
         _InnerX ("Inner X (LocalPos)", Float) = 10
         // _OuterX ("Outer X (WorldPos)", Float) = -10
         
@@ -28,20 +29,22 @@ Shader "SXSG/Shader_BendingBuilding"
             #pragma multi_compile_fog
 
             #include "UnityCG.cginc"
+            #include "Shader_Utils.cginc"
 
-            struct appdata
-            {
-                float4 vertex : POSITION;
-                float2 uv : TEXCOORD0;
-            };
+            // struct appdata
+            // {
+            //     float4 vertex : POSITION;
+            //     float2 uv : TEXCOORD0;
+            // };
 
-            struct v2f
-            {
-                float2 uv : TEXCOORD0;
-                float4 vertex : SV_POSITION;
-                float4 localPos : TEXCOORD1;
-                // float isUpperThanStartHeight : TEXCOORD1;
-            };
+            // struct v2f
+            // {
+            //     float2 uv : TEXCOORD0;
+            //     float4 vertex : SV_POSITION;
+            //     float4 localPos : TEXCOORD1;
+            //     // float3 worldNormal : 
+            //     // float isUpperThanStartHeight : TEXCOORD1;
+            // };
 
             sampler2D _MainTex;
             float4 _MainTex_ST;
@@ -56,7 +59,7 @@ Shader "SXSG/Shader_BendingBuilding"
 
             float4 _MainColor;
 
-            v2f vert (appdata v)
+            v2f vert (appdata_full v)
             {
                 v2f o;
                 o.vertex = UnityObjectToClipPos(v.vertex);
@@ -90,7 +93,7 @@ Shader "SXSG/Shader_BendingBuilding"
                 float ratio = isUpperThanStartHeight * _BendingRatio;
                 o.vertex = UnityWorldToClipPos ((1 - ratio) * worldPos + ratio * (offsetWorldPos + pivotWorldPos));
 
-                o.uv = TRANSFORM_TEX(v.uv, _MainTex);
+                o.uv = TRANSFORM_TEX(v.texcoord, _MainTex);
                 return o;
             }
 
