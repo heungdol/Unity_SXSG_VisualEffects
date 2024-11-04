@@ -1,4 +1,6 @@
 #include "UnityLightingCommon.cginc"
+#include "Lighting.cginc"
+#include "AutoLight.cginc"
 
 // struct appdata
 // {
@@ -10,7 +12,7 @@
 struct v2f
 {
     // fixed4 diff : COLOR0;
-    float4 vertex : SV_POSITION;
+    float4 pos : SV_POSITION;
     float2 uv : TEXCOORD0;
     float2 uv2 : TEXCOORD1;
     float4 worldPos : TEXCOORD2;
@@ -19,6 +21,8 @@ struct v2f
     half3 tspace0 : TEXCOORD5; // tangent.x, bitangent.x, normal.x
     half3 tspace1 : TEXCOORD6; // tangent.y, bitangent.y, normal.y
     half3 tspace2 : TEXCOORD7; // tangent.z, bitangent.z, normal.z
+    LIGHTING_COORDS(8, 9)
+    // V2F_SHADOW_CASTER;
     // float4 tangent : TANGENT;
 };
 

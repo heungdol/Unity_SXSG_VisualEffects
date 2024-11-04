@@ -2,7 +2,7 @@ Shader "SXSG/Shader_Fractal_Hexa"
 {
     Properties
     {
-        _MainTex ("Texture", 2D) = "white" {}
+        _BaseMap ("Texture", 2D) = "white" {}
         _BumpMap("Normal Map", 2D) = "bump" {}
 
         _OffsetLocalPos ("Offset Local Position", Vector) = (0, 0, 0, 1)

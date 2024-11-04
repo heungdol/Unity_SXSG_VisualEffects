@@ -1,6 +1,6 @@
 // Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
 
-Shader "Unlit/Shader_Reconstruction"
+Shader "SXSG/Shader_Reconstruction"
 {
     Properties
     {
@@ -32,6 +32,7 @@ Shader "Unlit/Shader_Reconstruction"
             CGPROGRAM
             #pragma vertex vert
             #pragma fragment frag
+            #pragma multi_compile_fwdbase
             // make fog work
             // #pragma multi_compile_fog
 
@@ -98,9 +99,9 @@ Shader "Unlit/Shader_Reconstruction"
                 v.vertex.xyz += (directionCol.xyz * _DirectionDegree + randomOffset * _DirectionOffsetDegree) 
                 * _RecontructionRate;
                 
-                o.vertex = UnityObjectToClipPos(v.vertex);
+                o.pos = UnityObjectToClipPos(v.vertex);
 
-                    // 본래 정보 계산
+                // 본래 정보 계산
                 o.localPos = v.vertex;
                 o.worldPos = mul (unity_ObjectToWorld, o.localPos);
 
@@ -113,6 +114,8 @@ Shader "Unlit/Shader_Reconstruction"
                 o.tspace0 = half3(wTangent.x, wBitangent.x, o.worldNormal.x);
                 o.tspace1 = half3(wTangent.y, wBitangent.y, o.worldNormal.y);
                 o.tspace2 = half3(wTangent.z, wBitangent.z, o.worldNormal.z);
+                
+                TRANSFER_SHADOW(o)
 
                 return o;
             }
@@ -153,12 +156,16 @@ Shader "Unlit/Shader_Reconstruction"
                 // 기존 조명 색상에 더하기
                 diff.rgb += pointLight;
                 diff.rgb += ShadeSH9(half4(worldNormal,1));
-
+                
+                col *= SHADOW_ATTENUATION(i) * 0.7 + 0.5;
                 col *= diff;
 
                 return float4(col.rgb, 1.0);
             }
             ENDCG
         }
+
+        UsePass "Legacy Shaders/VertexLit/SHADOWCASTER"
+
     }
 }

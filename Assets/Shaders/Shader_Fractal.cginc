@@ -38,7 +38,7 @@ void calculateVert (inout appdata_full v, inout v2f o, in float startAngle, in f
 
     // 본래 정보 계산
     o.localPos = v.vertex;
-    o.vertex = UnityObjectToClipPos(o.localPos);
+    o.pos = UnityObjectToClipPos(o.localPos);
     o.worldPos = mul (unity_ObjectToWorld, o.localPos);
     o.uv = TRANSFORM_TEX(v.texcoord, _BaseMap);
     o.uv2 = TRANSFORM_TEX(v.texcoord2, _BaseMap);
