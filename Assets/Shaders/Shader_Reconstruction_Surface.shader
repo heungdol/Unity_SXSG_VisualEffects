@@ -10,8 +10,11 @@ Shader "SXSG/Shader_Reconstruction_Surface"
         _DirectionMask ("Direction Map Texture", 2D) = "gray" {}
         _IDMask ("ID Texture", 2D) = "white" {}       
 
-        _RecontructionRate ("Recontruction Rate", Range (0.0, 1.0)) = 0
+        // _RecontructionRate ("Recontruction Rate", Range (0.0, 1.0)) = 0
 
+        _RecontructionPosZ ("Recontruction Current Position Z (Progress Degree)", Float) = 0
+        [Min(0.1)] _RecontructionLengthZ ("Recontruction Length Z (For Calculating Progress Ratio)", Float) = 0
+        
         _DirectionDegree ("Direction Degree", Float) = 0
         _DirectionOffsetDegree ("Direction Random Degree", Float) = 0.5
 
@@ -40,20 +43,22 @@ Shader "SXSG/Shader_Reconstruction_Surface"
             float2 uv2_DirectionMask;
         };
 
+        
         sampler2D _DirectionMask;
         float4 _DirectionMask_ST;
         
         sampler2D _IDMask;
         float4 _IDMask_ST;
         
-        UNITY_INSTANCING_BUFFER_START(Props)
         
-        float _RecontructionRate;
+        float _RandomSeed;                  
+        
+        float _RecontructionLengthZ;
+        float _RecontructionPosZ;
         
         float _DirectionDegree;
         float _DirectionOffsetDegree;
         float _RotationDegree;
-        float _RandomSeed;
         
         float _FloatingSpeed;
         float _FloatingDirectionDegree;
@@ -62,7 +67,8 @@ Shader "SXSG/Shader_Reconstruction_Surface"
         half _Glossiness;
         half _Metallic;
         fixed4 _Color;
-
+        
+        UNITY_INSTANCING_BUFFER_START(Props)
         UNITY_INSTANCING_BUFFER_END(Props)
 
         
@@ -126,15 +132,27 @@ Shader "SXSG/Shader_Reconstruction_Surface"
             rotatedNormal.y = v.normal.x * sinTheta + v.normal.y * cosTheta;
             v.normal = float3(rotatedNormal.x, rotatedNormal.y, v.normal.z);
         }
+        
+        // 오브젝트의 월드 Position Z 값
+        float objectPosZInWorld ()
+        {
+            return mul (unity_ObjectToWorld, fixed4 (0, 0, 0, 1)).z;
+        }
 
         float customRandom (in float value)
         {
-            return frac (sin (value * -_RandomSeed) * 12345.6789);
+            return frac (sin (value * -(_RandomSeed + objectPosZInWorld())) * 12345.6789);
         }
 
         float customRandom_Cos (in float value)
         {
-            return frac (cos (value * -_RandomSeed) * 12345.6789);
+            return frac (cos (value * -(_RandomSeed + objectPosZInWorld())) * 12345.6789);
+        }
+        
+        // 현재 진행 정도 비율 계산
+        float recontructionRate ()
+        {
+            return saturate ((_RecontructionPosZ - objectPosZInWorld()) / _RecontructionLengthZ);
         }
 
         void vert(inout appdata_full data)
@@ -150,11 +168,11 @@ Shader "SXSG/Shader_Reconstruction_Surface"
             
             // 로테이션
             rotateLocalRotaion_X 
-            (data, (randomOffset.x * _RotationDegree + cos (_Time * _FloatingSpeed * randomOffset.x) * _FloatingRotationDegree) * _RecontructionRate);
+            (data, (randomOffset.x * _RotationDegree + cos (_Time * _FloatingSpeed * randomOffset.x) * _FloatingRotationDegree) * recontructionRate());
             rotateLocalRotaion_Y 
-            (data, (randomOffset.y * _RotationDegree + sin (_Time * _FloatingSpeed * randomOffset.y) * _FloatingRotationDegree) * _RecontructionRate);
+            (data, (randomOffset.y * _RotationDegree + sin (_Time * _FloatingSpeed * randomOffset.y) * _FloatingRotationDegree) * recontructionRate());
             rotateLocalRotaion_Z 
-            (data, (randomOffset.z * _RotationDegree + cos (_Time * _FloatingSpeed * randomOffset.z) * _FloatingRotationDegree) * _RecontructionRate);
+            (data, (randomOffset.z * _RotationDegree + cos (_Time * _FloatingSpeed * randomOffset.z) * _FloatingRotationDegree) * recontructionRate());
 
             // 위치 Offset
             float4 directionCol = tex2Dlod(_DirectionMask, float4(uv2, 0.0, 1.0));
@@ -162,7 +180,7 @@ Shader "SXSG/Shader_Reconstruction_Surface"
             directionCol *= 2;
             
             data.vertex.xyz += (directionCol.xyz * _DirectionDegree + randomOffset * _DirectionOffsetDegree) 
-            * _RecontructionRate;    
+            * recontructionRate();    
         }   
 
         void surf (Input IN, inout SurfaceOutputStandard o)

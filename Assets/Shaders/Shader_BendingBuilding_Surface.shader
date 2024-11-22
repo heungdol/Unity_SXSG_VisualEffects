@@ -8,10 +8,15 @@ Shader "SXSG/Shader_BendingBuilding_Surface"
         _Metallic ("Metallic", Range(0,1)) = 0.0
 
         _PivotX ("Pivot X (WorldPos)", Float) = 50
-        _PivotY ("Pivot Y (WorldPos)", Float) = 100
-        _InnerX ("Inner X (LocalPos)", Float) = 10
+        _PivotX_Max ("Pivot X Max (WorldPos)", Float) = 300
 
-        _BendingRatio ("Bending Ratio", Range (0.0, 1.0)) = 0.0
+        _PivotY ("Pivot Y (WorldPos)", Float) = 100
+        
+        _BendingPosZ ("Bending Pos Z (Progress Degree)", Float) = 100
+        [Min(0.1)] _BendingLengthZ ("Recontruction Length Z (For Calculating Progress Ratio)", Float) = 0
+        // _InnerX ("Inner X (LocalPos)", Float) = 10
+
+        // _BendingRatio ("Bending Ratio", Range (0.0, 1.0)) = 0.0
     }
     SubShader
     {
@@ -33,45 +38,76 @@ Shader "SXSG/Shader_BendingBuilding_Surface"
         half _Metallic;
         fixed4 _Color;
         
-        float _BendingRatio;
-        
-        UNITY_INSTANCING_BUFFER_START(Props)
+        // float _BendingRatio;
         
         float _PivotY;
         float _PivotX;
-        float _InnerX;
+        float _PivotX_Max;
+        // float _InnerX;
 
+        float _BendingPosZ;
+        float _BendingLengthZ;
+        
+        UNITY_INSTANCING_BUFFER_START(Props)
         UNITY_INSTANCING_BUFFER_END(Props)
+
+        // 오브젝트의 월드 Position Z 값
+        float objectPosZInWorld ()
+        {
+            return mul (unity_ObjectToWorld, fixed4 (0, 0, 0, 1)).z;
+        }
+
+        // 현재 진행 정도 비율 계산
+        float bendingRate ()
+        {
+            // trueT = Mathf.Sin((t - 0.5f) * Mathf.PI) * 0.5f + 0.5f;
+            // trueT = Mathf.Pow (trueT, 0.25f);
+
+            float wrapped = saturate ((_BendingPosZ - objectPosZInWorld()) / _BendingLengthZ);
+            wrapped = sin ((wrapped - 0.5) * 3.141592) * 0.5 + 0.5;
+            wrapped = pow (wrapped, 0.25);
+
+            return wrapped;
+        }
+
+        // 현재 진행 정도를 이용한 반지름 계산
+        float pivotRadius ()
+        {
+            return lerp (_PivotX_Max, _PivotX, bendingRate ());
+        }
 
         void vert(inout appdata_full data)
         {
             // 월드 위치
             float4 worldPos = mul(unity_ObjectToWorld, data.vertex);
-            float4 worldInnerPos = mul (unity_ObjectToWorld, float4(_InnerX, 0.0, 0.0, 1.0));
+            // float4 worldInnerPos = mul (unity_ObjectToWorld, float4(_InnerX, 0.0, 0.0, 1.0));
+            // float4 worldInnerPos = mul (unity_ObjectToWorld, float4(0.0, 0.0, 0.0, 1.0));
             
             // 영향을 받을 부분 판단 (일정 높이 이상)
             float isUpperThanStartHeight = step (_PivotY, worldPos.y);
 
             // 반지름
-            float radius = (_PivotX - worldPos.x);
+            float radius = (pivotRadius() - data.vertex.x);
 
             // 하나의 기준 축을 이용하여 계산 (부피에 따른 적절한 비율로 계산하기 위함)
-            float radiusInner = (_PivotX - worldInnerPos.x);
+            float radiusInner = (pivotRadius());// - worldInnerPos.x);
             
             float length = abs (worldPos.y - _PivotY);
             float angle = length / radiusInner;
 
             // 길이와 각을 이용하여 굽힘 정도 계산
-            float4 offsetWorldPos = float4 (0.0, 0.0, 0.0, 0.0);
-            offsetWorldPos.y = sin (angle) * radius;
-            offsetWorldPos.x = cos (angle) * -radius;
-
-            float4 pivotWorldPos = float4 (_PivotX, _PivotY, worldPos.z, 1.0);
-
+            float3 offsetPos = float3 (0.0, 0.0, 0.0);
+            offsetPos.x = cos (angle) * radius;
+            offsetPos.x = radius - offsetPos.x;
+    
+            offsetPos.y = sin (angle) * radius - length;
+            
             // Bending 적용
-            float ratio = isUpperThanStartHeight * _BendingRatio;
-            float3 bentWorldPos = lerp(worldPos, offsetWorldPos + pivotWorldPos, ratio);
-            data.vertex = mul (unity_WorldToObject, float4(bentWorldPos, 1.0));
+            float ratio = isUpperThanStartHeight * bendingRate();
+            data.vertex.xyz = lerp(data.vertex.xyz, data.vertex.xyz + offsetPos, ratio);
+
+            // data.vertex.xyz = bentWorldPos;//mul (unity_WorldToObject, float4(bentWorldPos, 1.0));
+            // data.vertex.w = 1;
         }
 
         void surf (Input IN, inout SurfaceOutputStandard o)

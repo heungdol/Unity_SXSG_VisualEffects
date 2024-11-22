@@ -28,12 +28,12 @@ public class ReconstructionController : MonoBehaviour
             m_meshRenderer = GetComponent<MeshRenderer> ();
         }
 
-        // m_reconstructionManager = GetComponentInParent<ReconstructionManager>();
+        m_reconstructionManager = GetComponentInParent<ReconstructionManager>();
 
         m_startRotation = gameObject.transform.localRotation;
         m_startScale = gameObject.transform.localScale;
 
-        m_meshRenderer.material.SetFloat ("_RecontructionRate", 0.0f);
+        // m_meshRenderer.material.SetFloat ("_RecontructionRate", 0.0f);
     }
 
     public void SetConstructionManager (in ReconstructionManager _manager, in float _orderRatio)
@@ -48,17 +48,17 @@ public class ReconstructionController : MonoBehaviour
         m_duration = _duration;
     }
 
-    public void AddRandomSeed (in int _increase)
-    {
-        if (m_meshRenderer == null)
-        {
-            m_meshRenderer = GetComponent<MeshRenderer> ();
-        }
+    // public void AddRandomSeed (in int _increase)
+    // {
+    //     if (m_meshRenderer == null)
+    //     {
+    //         m_meshRenderer = GetComponent<MeshRenderer> ();
+    //     }
 
-        m_meshRenderer.material.SetInt ("_RandomSeed", m_meshRenderer.material.GetInt("_RandomSeed") + _increase);
-    }
+    //     // m_meshRenderer.material.SetInt ("_RandomSeed", m_meshRenderer.material.GetInt("_RandomSeed") + _increase);
+    // }
 
-    private float WrapingTimeRatio (in float _currentT)
+    private float GetWrappedTimeRatio (in float _currentT)
     {
         return m_reconstructionManager.WarpTimeRatio(_currentT);// Mathf.Sin((_currentT - 0.5f) * Mathf.PI) * 0.5f + 0.5f;
     }
@@ -84,7 +84,7 @@ public class ReconstructionController : MonoBehaviour
         while (m_currentRatio < 1.0f)
         {
             m_currentRatio += Time.deltaTime / m_duration;
-            m_meshRenderer.material.SetFloat ("_RecontructionRate", WrapingTimeRatio(m_currentRatio));
+            // m_meshRenderer.material.SetFloat ("_RecontructionRate", GetWrappedTimeRatio(m_currentRatio));
 
             m_reconstructionManager.GetControlRotationByRatio(m_currentRatio, m_orderRatio, out controlRotation);
             m_reconstructionManager.GetControlScaleByRatio(m_currentRatio, m_orderRatio, m_startScale, out controlScale);
@@ -96,7 +96,7 @@ public class ReconstructionController : MonoBehaviour
         }
 
         m_currentRatio = 1.0f;
-        m_meshRenderer.material.SetFloat ("_RecontructionRate", WrapingTimeRatio(m_currentRatio));
+        // m_meshRenderer.material.SetFloat ("_RecontructionRate", GetWrappedTimeRatio(m_currentRatio));
 
         m_reconstructionManager.GetControlRotationByRatio(m_currentRatio, m_orderRatio, out controlRotation);
         m_reconstructionManager.GetControlScaleByRatio(m_currentRatio, m_orderRatio, m_startScale, out controlScale);
@@ -127,7 +127,7 @@ public class ReconstructionController : MonoBehaviour
         while (m_currentRatio > 0.0f)
         {
             m_currentRatio -= Time.deltaTime / m_duration;
-            m_meshRenderer.material.SetFloat ("_RecontructionRate", WrapingTimeRatio(m_currentRatio));
+            // m_meshRenderer.material.SetFloat ("_RecontructionRate", GetWrappedTimeRatio(m_currentRatio));
 
             m_reconstructionManager.GetControlRotationByRatio(m_currentRatio, m_orderRatio, out controlRotation);
             m_reconstructionManager.GetControlScaleByRatio(m_currentRatio, m_orderRatio, m_startScale, out controlScale);
@@ -139,7 +139,7 @@ public class ReconstructionController : MonoBehaviour
         }
 
         m_currentRatio = 0.0f;
-        m_meshRenderer.material.SetFloat ("_RecontructionRate", WrapingTimeRatio(m_currentRatio));
+        // m_meshRenderer.material.SetFloat ("_RecontructionRate", GetWrappedTimeRatio(m_currentRatio));
 
         m_reconstructionManager.GetControlRotationByRatio(m_currentRatio, m_orderRatio, out controlRotation);
         m_reconstructionManager.GetControlScaleByRatio(m_currentRatio, m_orderRatio, m_startScale, out controlScale);

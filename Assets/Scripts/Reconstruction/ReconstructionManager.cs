@@ -8,6 +8,16 @@ public class ReconstructionManager : MonoBehaviour, IInputable
     [SerializeField][HideInInspector] private ReconstructionController m_reconstruction;
     [SerializeField][HideInInspector] private List<ReconstructionController> m_reconstructions;
 
+    [Header ("진행 설정")]
+    [SerializeField] private float m_progressDuration = 9.0f;
+    [SerializeField][FormerlySerializedAs("m_controlRatio")][FormerlySerializedAs("m_controlReconstructionRatio")]  
+    private AnimationCurve m_controlProgressRatioCurve = AnimationCurve.Linear (0.0f, 0.0f, 1.0f, 1.0f);   
+    [SerializeField][FormerlySerializedAs("m_controlRotation_orderRatio_z")] 
+    private AnimationCurve m_controlRotation_orderRatio = AnimationCurve.Linear (0.0f, 0.0f, 1.0f, 0.0f);
+    [SerializeField] private AnimationCurve m_controlAddScale_orderRatio = AnimationCurve.Linear (0.0f, 1.0f, 1.0f, 1.0f);
+    [SerializeField][FormerlySerializedAs("m_recontructionPosZCurve")] 
+    private AnimationCurve m_adjustMaterialProgressCurve = AnimationCurve.Linear (0.0f, 0.0f, 1.0f, 200.0f);
+
     [Header ("컨트롤 설정")]
     [SerializeField][Range(1, 100)] private int m_recontructionCount = 10;
     [SerializeField] private Vector3 m_reconstructionArrayOffsetPosition = new Vector3 (0.0f, 0.0f, 10.0f);
@@ -15,17 +25,12 @@ public class ReconstructionManager : MonoBehaviour, IInputable
     [SerializeField][Range(0.01f, 10.0f)] private float m_recontructionPieceDuration = 2.0f;
 
     [Header ("Z 회전 설정")]
-    [SerializeField][FormerlySerializedAs("m_controlRatio")][FormerlySerializedAs("m_controlReconstructionRatio")]  
-    private AnimationCurve m_controlProgressRatioCurve = AnimationCurve.Linear (0.0f, 0.0f, 1.0f, 1.0f);   
     [SerializeField] private AnimationCurve m_controlRotation_z = AnimationCurve.Linear (0.0f, 0.0f, 1.0f, 0.0f);
-    [SerializeField][FormerlySerializedAs("m_controlRotation_orderRatio_z")] 
-    private AnimationCurve m_controlRotation_orderRatio = AnimationCurve.Linear (0.0f, 0.0f, 1.0f, 0.0f);
     
     [Header ("스케일 설정")]
     [SerializeField] private AnimationCurve m_controlAddScale_x = AnimationCurve.Linear (0.0f, 0.0f, 1.0f, 0.0f);
     [SerializeField] private AnimationCurve m_controlAddScale_y = AnimationCurve.Linear (0.0f, 0.0f, 1.0f, 0.0f);
     [SerializeField] private AnimationCurve m_controlAddScale_z = AnimationCurve.Linear (0.0f, 0.0f, 1.0f, 0.0f);
-    [SerializeField] private AnimationCurve m_controlAddScale_orderRatio = AnimationCurve.Linear (0.0f, 1.0f, 1.0f, 1.0f);
 
     [Header ("카메라 설정")]
     [SerializeField] private float m_cameraDuration;
@@ -39,6 +44,11 @@ public class ReconstructionManager : MonoBehaviour, IInputable
     [SerializeField][HideInInspector] private float m_currentCameraRatio = 0.0f;
     [SerializeField][HideInInspector] private float m_cameraStartFOV = 60.0f;
 
+    [Header ("머테리얼 설정")]
+    [SerializeField] private Material m_recontructionMaterial = null;
+
+    [SerializeField][HideInInspector]private IEnumerator m_currentAdjustMaterialProperty_CO = null;
+    [SerializeField][HideInInspector] private bool m_braking = false;
 
     void Start ()
     {
@@ -46,23 +56,38 @@ public class ReconstructionManager : MonoBehaviour, IInputable
         InitCamera ();
     }
     
+    #region input interface
 
     public void InputAction_MouseLeft ()
     {
-        StartBrakings ();
-        MoveCamera (false);
+        if (m_braking == false)
+        {
+            m_braking = true;
+
+            StartBrakings ();
+            MoveCamera (false);
+            AdjustMateiralProperty (false);
+        }
     }
 
     public void InputAction_MouseRight ()
     {
-        StartReconstructings ();
-        MoveCamera (true);
+        if (m_braking == true)
+        {
+            m_braking = false;
+
+            StartReconstructings ();
+            MoveCamera (true);
+            AdjustMateiralProperty (true);
+        }
     }
 
     public void InputAction_MouseMiddle ()
     {
         
     }
+
+    #endregion
 
     void InitReconstruction ()
     {
@@ -94,11 +119,17 @@ public class ReconstructionManager : MonoBehaviour, IInputable
             m_reconstructions[i].gameObject.transform.localPosition = m_reconstructionArrayOffsetPosition * i;
         
             m_reconstructions[i].SetConstructionManager (this, 1.0f * i / m_recontructionCount);
-            m_reconstructions[i].AddRandomSeed (i);
             m_reconstructions[i].SetDurations (i * m_recontructionPieceDelay, m_recontructionPieceDuration);
+            
+            // m_reconstructions[i].AddRandomSeed (i);
         }
 
         originRecontructionController.gameObject.SetActive (false);
+
+        if (m_recontructionMaterial)
+        {
+            m_recontructionMaterial.SetFloat ("_RecontructionPosZ", m_adjustMaterialProgressCurve.Evaluate (0.0f));
+        }
     }
 
     void InitCamera ()
@@ -226,6 +257,60 @@ public class ReconstructionManager : MonoBehaviour, IInputable
             m_mainCamera.fieldOfView = m_cameraStartFOV + m_FOVOffsetCurve.Evaluate(m_currentCameraRatio);
             m_mainCamera.transform.localPosition = startPoint;
         }
+    }
 
+    void AdjustMateiralProperty (in bool _inverse = false)
+    {
+        if (m_currentAdjustMaterialProperty_CO != null)
+        {
+            StopCoroutine (m_currentAdjustMaterialProperty_CO);
+        }
+
+        m_currentAdjustMaterialProperty_CO = AdjustMaterialProperty_CO (_inverse);
+        StartCoroutine (m_currentAdjustMaterialProperty_CO);
+    }
+
+    private IEnumerator AdjustMaterialProperty_CO (bool _inverse = false)
+    {
+        float t = 0;
+        if (_inverse == false)
+        {
+            while (m_recontructionMaterial != null 
+            && t < 1.0f)
+            {
+                t += Time.deltaTime / m_progressDuration;
+
+                m_recontructionMaterial.SetFloat ("_RecontructionPosZ", m_adjustMaterialProgressCurve.Evaluate (t));
+
+                yield return null;
+            }
+
+            t = 1.0f;
+
+            if (m_recontructionMaterial)
+            {
+                m_recontructionMaterial.SetFloat ("_RecontructionPosZ", m_adjustMaterialProgressCurve.Evaluate (t));
+            }
+        }
+        else
+        {
+            t = 1.0f;
+            while (m_recontructionMaterial != null 
+            && t > 0.0f)
+            {
+                t -= Time.deltaTime / m_progressDuration;
+
+                m_recontructionMaterial.SetFloat ("_RecontructionPosZ", m_adjustMaterialProgressCurve.Evaluate (t));
+
+                yield return null;
+            }
+
+            t = 0.0f;
+
+            if (m_recontructionMaterial)
+            {
+                m_recontructionMaterial.SetFloat ("_RecontructionPosZ", m_adjustMaterialProgressCurve.Evaluate (t));
+            }
+        }
     }
 }
